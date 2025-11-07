@@ -1,0 +1,16 @@
+server:
+  port: 7676
+
+spring:
+  application:
+    name: auth-service
+
+jwt:
+  secret: YW5zYXJiYWNoaXJfc29jaWFsc1BsYXRmb3JtX0JhY2tlbmRfQVBJXzExXzIwMjU=
+  issuer: ansarbachir
+  type: accessToken
+  
+eureka:
+  client:
+    service-url:
+        defaultZone: http://localhost:8761/eureka/

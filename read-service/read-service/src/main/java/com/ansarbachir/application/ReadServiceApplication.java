@@ -6,10 +6,10 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 @ComponentScan(basePackages = {"com.ansarbachir.application.*"})
-public class GatewayServiceApplication {
+public class ReadServiceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(GatewayServiceApplication.class, args);
+		SpringApplication.run(ReadServiceApplication.class, args);
 	}
 
 }
