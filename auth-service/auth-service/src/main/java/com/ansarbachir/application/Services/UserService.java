@@ -10,14 +10,14 @@ import com.ansarbachir.application.Entities.User;
  import com.ansarbachir.application.Repositories.UserRepository;
 import com.ansarbachir.application.config.JwtUtils;
 import com.ansarbachir.application.dto.LoginRequestDto;
+import com.ansarbachir.application.dto.UserDTO;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
+ import org.springframework.stereotype.Service;
 
 /**
  *
@@ -27,14 +27,16 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserService {
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
   
     
     public String login(LoginRequestDto request){
         Optional<User> optionalUser = userRepository.findByemail(request.email());
-        if(optionalUser.isEmpty()) return null;
+        if(optionalUser.isEmpty()){
+            return null;
+        }
         User user = optionalUser.get();
         List<Role> roles = user.getRoles();
         var authToken = new UsernamePasswordAuthenticationToken(request.email(),request.password());
@@ -42,4 +44,13 @@ public class UserService {
         var jwtAccessToken = jwtUtils.generateToken(((UserDetails) (authenticate.getPrincipal())).getUsername(),roles);
         return jwtAccessToken;
     }
+    
+    
+     public UserDTO validateToken(String token){
+        boolean isValid = jwtUtils.validateToken(token);
+         if(!isValid) return null;
+        return jwtUtils.getUsernameAndRoles(token);
+     }
+    
+    
 }

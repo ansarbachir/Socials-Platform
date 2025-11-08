@@ -27,18 +27,49 @@ spring:
     baseline-on-migrate: true
     locations: classpath:db/migration    
     
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: http://localhost:8081/realms/myrealm  
+ 
+  
+  #Kafka
+  kafka:
+    bootstrap-servers: localhost:9092
+
+    consumer:
+      group-id: myGroup
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+#        spring.json.value.default.type: com.ansarbachir.application.dto.*
+        
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+                        
+    admin:
+      auto-create: true  
           
 #Discovery service
 eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
-      
-internal:
-    gateway:
-        key: 99ss78@r85art22qs64y__78@1xb 
+ 
+ 
+#KAFKA PROPERTIES
+kafka:
+   group-id: myGroup
+   topic:
+     post:
+       create: create-post-topic
+       update: update-post-topic
+       partitions: 1
+       replicas: 1
+
+logging:
+  level:
+    org.springframework.kafka: DEBUG
+    org.springframework.kafka.listener: DEBUG
+    org.apache.kafka: INFO   
+   

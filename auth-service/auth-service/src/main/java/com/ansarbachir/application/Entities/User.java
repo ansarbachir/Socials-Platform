@@ -34,15 +34,15 @@ public class User implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name ="user_name",nullable = false, unique = true)
+    @Column(name ="username",nullable = false, unique = true)
     @Size(max = 150)
     private String username;
 
-    @Column(name ="user_email",nullable = false, unique = true)
+    @Column(name ="email",nullable = false, unique = true)
     @Size(max = 200)
     private String email;
 
-    @Column(name ="user_password", nullable = false)
+    @Column(name ="password", nullable = false)
     @Size(max = 200)
     private String password;
    
@@ -54,11 +54,11 @@ public class User implements Serializable {
     )
     private List<Role> roles;
 
-    @Column(name ="image_url", nullable = true)
+    @Column(name ="imageUrl", nullable = true)
     @Size(max = 200)
     private String imageUrl;
 
-    @Column(name = "created_at")
+    @Column(name = "createdAt")
     private LocalDateTime createdAt ;
 }
 

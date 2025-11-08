@@ -21,6 +21,19 @@ public class GlobalExceptionHandler {
 
     
     
+    @ExceptionHandler(org.springframework.kafka.listener.ListenerExecutionFailedException.class)
+    public ResponseEntity<Map<String, Object>> handleListenerExecutionFailedException(org.springframework.kafka.listener.ListenerExecutionFailedException ex, WebRequest request) {
+        Map<String, Object> errorDetails = new HashMap<>();
+        errorDetails.put("message", "Error occurred, please try again !");
+        return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    
+    @ExceptionHandler(org.springframework.web.bind.MissingRequestHeaderException.class)
+    public ResponseEntity<Map<String, Object>> handleMissingRequestHeaderException(org.springframework.web.bind.MissingRequestHeaderException ex, WebRequest request) {
+        Map<String, Object> errorDetails = new HashMap<>();
+        errorDetails.put("message", "Requeste not valide");
+        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+    }
     
     @ExceptionHandler(CustomizedException.class)
     public ResponseEntity<Map<String, Object>> handleCustomizedException(CustomizedException ex, WebRequest request) {

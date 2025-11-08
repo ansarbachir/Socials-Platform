@@ -8,63 +8,36 @@ package com.ansarbachir.application.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 
 /**
  *
  * @author ansar
  */
-@EnableWebFluxSecurity
 @Configuration
+@EnableWebFluxSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
-   
-    @Bean
-    public SecurityWebFilterChain filterChain(ServerHttpSecurity http) {
 
+    private final JwtValidationWebFilter jwtValidationWebFilter;
+
+    @Bean
+    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         http
-            .csrf(ServerHttpSecurity.CsrfSpec::disable)
-            .authorizeExchange(auth -> auth.anyExchange().permitAll())
-            .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
-            .formLogin(ServerHttpSecurity.FormLoginSpec::disable);
+            .csrf().disable()
+            .authorizeExchange(exchanges -> exchanges
+                .pathMatchers("/api/v1/auth/**").permitAll()
+                .pathMatchers("/api/v1/write/posts/admin/**").hasAnyAuthority("ROLE_ADMIN")
+                .pathMatchers("/api/v1/read/posts/admin/**").hasAnyAuthority("ROLE_ADMIN")
+                .anyExchange().authenticated()
+                //.anyExchange().permitAll()
+            )
+            .addFilterAt(jwtValidationWebFilter, SecurityWebFiltersOrder.AUTHENTICATION);  
 
         return http.build();
     }
-    
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
-        
-        // Disable CORS
-        //httpSecurity.cors(corsConfig -> corsConfig.disable());
-        
-        // Disable CSRF
-        httpSecurity.csrf(csrf -> csrf.disable());
-        
-        // HTTP Request Filter
-        httpSecurity.authorizeHttpRequests(
-        requestMatcher -> requestMatcher
-                            .requestMatchers("/api/v1/auth/**").permitAll()
-                            .requestMatchers("/api/v1/write/**").hasAuthority("USER")
-                            .requestMatchers("/api/v1/read/**").hasAuthority("ADMIN")
-                            .anyRequest().authenticated()
-        );
-                             
-        // Set Session  policy = STATELESS
-        httpSecurity.sessionManagement(
-        sessionConfig -> sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        );
-
-        // Add JWT Authentication Filter
-        httpSecurity.addFilterBefore(jwtAuthenticationFilter,UsernamePasswordAuthenticationFilter.class);
-                
-        return httpSecurity.build();
-    }
 }
+

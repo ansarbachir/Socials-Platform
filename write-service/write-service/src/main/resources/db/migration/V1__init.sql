@@ -1,13 +1,3 @@
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
-CREATE TABLE logs (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    title VARCHAR(255),
-    content TEXT,
-    user_id BIGINT,
-    created_at TIMESTAMP
-);
- 
 CREATE TABLE users (
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     username VARCHAR(150) NOT NULL UNIQUE,
@@ -18,7 +8,7 @@ CREATE TABLE users (
 );
 
 CREATE TABLE roles (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     name VARCHAR(50) NOT NULL UNIQUE
 );
 
@@ -30,14 +20,28 @@ CREATE TABLE users_roles (
     CONSTRAINT fk_role FOREIGN KEY (role_id) REFERENCES roles(id)
 );
 
+CREATE TABLE logs (
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    title VARCHAR(255),
+    content TEXT,
+    user_id BIGINT NOT NULL REFERENCES users(id) ,
+    created_at TIMESTAMP
+);
+
 CREATE TABLE posts (
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    user_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL REFERENCES users(id) ,
     title VARCHAR(250) NOT NULL,
     media_url VARCHAR(500),
+    status VARCHAR(100),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_post_user FOREIGN KEY (user_id)
         REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE post_media (
+    post_id BIGINT NOT NULL,
+    media_url VARCHAR(500)
 );
 
 CREATE TABLE comments (

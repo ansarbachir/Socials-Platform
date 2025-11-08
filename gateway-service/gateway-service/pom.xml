@@ -86,7 +86,6 @@
                 <groupId>jakarta.servlet</groupId>
                 <artifactId>jakarta.servlet-api</artifactId>
                 <type>jar</type>
-                  <version>6.1.0</version>
             </dependency>
         </dependencies>
 	<dependencyManagement>

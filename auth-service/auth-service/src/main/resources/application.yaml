@@ -4,6 +4,11 @@ server:
 spring:
   application:
     name: auth-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/gateway-db
+    username: admin
+    password: admin
+    driver-class-name: org.postgresql.Driver    
 
 jwt:
   secret: YW5zYXJiYWNoaXJfc29jaWFsc1BsYXRmb3JtX0JhY2tlbmRfQVBJXzExXzIwMjU=

@@ -5,10 +5,11 @@
 package com.ansarbachir.application.config;
 
 import com.ansarbachir.application.Entities.Role;
+import com.ansarbachir.application.Entities.User;
+import com.ansarbachir.application.Repositories.UserRepository;
+import com.ansarbachir.application.dto.UserDTO;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -17,12 +18,10 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,6 +33,7 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class JwtUtils {
 
     @Value("${jwt.secret}")
@@ -43,68 +43,22 @@ public class JwtUtils {
     @Value("${jwt.type}")
     private String ACCESSTOKEN;
 
-   
+   private final UserRepository userRepository;
+    
     public boolean validateToken(String jwtToken) {
-        return parseToken(jwtToken).isPresent();
-    }
-
-    public  Optional<String> getUsernameFromToken(String jwtToken) {
-
-        var claimsOptional = parseToken(jwtToken);
-
-
-        if (claimsOptional.isPresent()) {
-            return Optional.of(claimsOptional.get().getSubject());
-        }
-        return Optional.empty();
-    }
-
-    private   Optional<Claims> parseToken(String jwtToken) {
-  
-        byte[] secretBytes = Base64.getDecoder().decode(base64Secret);
-        SecretKeySpec key = new SecretKeySpec(secretBytes, "HmacSHA256");
-        Jws<Claims> jwtParser = Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(jwtToken);
-
         try {
-            Claims claims = jwtParser.getBody();
-
-            String typeClaim = (String) claims.get("type");
-
-            if (!typeClaim.equals(ACCESSTOKEN)) {
-                throw new Exception("Access denied - Wrong type token");
-            }
-            // Check token expiration
-            Date expiration = claims.getExpiration();
-            Date now = new Date();
-
-            if (expiration != null && expiration.before(now)) {
-                // Token has expired
-                log.error("JWT expired at: {}. Current time: {}. Token: {}",
-                        expiration, now, jwtToken);
-                // You can throw an exception, log, or handle expired token as needed
-                throw new ExpiredJwtException(null, claims, "JWT expired " + expiration);
-            }
-
-            // Token is valid, proceed with processing
-            return Optional.of(claims);
-
-        } catch (ExpiredJwtException ex) {
-            // Handle expired token exception
-            log.error("Expired JWT Exception occurred: {}", ex.getMessage());
-            // You can log, send an error response, or perform token renewal
-        } catch (JwtException | IllegalArgumentException e) {
-            // Handle other JWT exceptions or invalid token format
-            log.error("JWT Exception occurred: {}", e.getMessage());
-        } catch (Exception ex) {
-            Logger.getLogger(JwtUtils.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        return Optional.empty();
+        Claims claims = parseToken(jwtToken);
+        if(claims == null) return false;
+        return claims.getExpiration().after(new Date());
+    } catch (ExpiredJwtException e) {
+        System.out.println("Token expired: " + e.getMessage());
+        return false;
+    } catch (Exception e) {
+        return false;
     }
- 
+    }
+
+   
     
     public String generateToken(String subject,List<Role> roles) {
         byte[] secretBytes = Base64.getDecoder().decode(base64Secret);
@@ -113,16 +67,76 @@ public class JwtUtils {
         Instant now = Instant.now();
         Date issuedAt = Date.from(now);
         Date expiresAt = Date.from(now.plusSeconds(900)); // 15 minutes
-     
+        
         String jwt = Jwts.builder()
             .setIssuer(ISSUER)
             .setSubject(subject)                          
             .setIssuedAt(issuedAt)
             .setExpiration(expiresAt)
-            .setClaims(Map.of("roles",roles))
+            .claim("roles", roles.stream().map(Role::getName).toList())
+            .claim("type", ACCESSTOKEN)
             .signWith(key, SignatureAlgorithm.HS256)
             .compact();
 
         return jwt;
+    }
+    
+    
+     public Claims parseToken(String token) {
+        if(token == null ||"".equals(token)) return null;
+        byte[] secretBytes = Base64.getDecoder().decode(base64Secret);
+        SecretKeySpec key = new SecretKeySpec(secretBytes, "HmacSHA256");
+        return Jwts.parserBuilder()
+                   .setSigningKey(key)
+                   .build()
+                   .parseClaimsJws(token)
+                   .getBody();
+    }
+
+    public  String getUsername(String token) {
+        Claims claims = parseToken(token);
+        if(claims == null) return null;
+        return claims.getSubject(); 
+    }
+
+    public  List<String> getRoles(String token) {
+        Claims claims = parseToken (token);
+        if(claims == null) return null;
+        Object rolesClaim = claims.get("roles");
+        List<String> roles = new ArrayList<>();
+        if (rolesClaim instanceof List<?>) {
+            for (Object role : (List<?>) rolesClaim) {
+                roles.add(role.toString());
+            }
+        }
+        return roles;
+    }
+    
+    public UserDTO getUsernameAndRoles(String token){
+         Claims claims = parseToken(token);
+
+         if(claims == null) return null;
+         
+         
+        String email = claims.getSubject();
+        Object rolesClaim = claims.get("roles");
+        List<String> roles = new ArrayList<>();
+        if (rolesClaim instanceof List<?> list) {
+            for (Object role : list) {
+                roles.add(role.toString());
+            }
+        }
+ 
+        
+        Optional<User> optionalUser = userRepository.findByemail(email);
+        if(optionalUser.isEmpty()){
+            return null;
+        }
+        
+        UserDTO user = new UserDTO();
+        user.setUserID(optionalUser.get().getId());
+        user.setUsername(email);
+        user.setRoles(roles);
+        return user;
     }
 }

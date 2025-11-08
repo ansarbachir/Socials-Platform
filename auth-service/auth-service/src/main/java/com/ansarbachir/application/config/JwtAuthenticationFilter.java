@@ -10,7 +10,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -57,14 +55,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                  request.getMethod() + " " +  request.getRequestURI());
           
         // Check if the request URI starts with "/api/v1/"
-        if (!requestURI.startsWith("/api/v1/")) {
+        if (!requestURI.equals("/login") && !requestURI.equals("/validate")) {
             // Block the request
              log.warn("Block access other url");
             response.sendError(403,"Access Forbidden");
             return;
         }
-        
-        
+         
         // Fetch token from request
         Optional<String> jwtTokenOptional = getTokenFromRequest(request);
         
@@ -73,16 +70,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if(jwtUtils.validateToken(jwtToken)){
                 
                 // Get Username from JWT Token
-                var usernameOptional = jwtUtils.getUsernameFromToken(jwtToken);
+                var username = jwtUtils.getUsername(jwtToken);
                 
-                usernameOptional.ifPresent(username ->{
+                if(username != null){
                     
                 // Fetch user details with the help of username
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                 
-                  // Check user roles
-                Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
-                 
                 // Create Authentication token
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails,null, userDetails.getAuthorities());
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
@@ -96,7 +90,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     } catch (IOException | ServletException ex) {
                         Logger.getLogger(JwtAuthenticationFilter.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                });
+                }
               
             }
         });
