@@ -2,6 +2,9 @@ Social Media Platform – Event-Driven Microservices with Kafka
 
 This repository contains a social media backend built using a microservices architecture with Spring Boot, Kafka, PostgreSQL, and Flyway.
 The system follows an event-driven workflow where every post created by a user must be approved by an admin before becoming public.
+This project uses Spring Cloud and Eureka for service discovery and gateway routing.
+Eureka allows all microservices to register dynamically, while Spring Cloud Gateway provides a single entry point to the application.
+This architecture improves scalability, load distribution, and simplifies communication between services.
 Each service is responsible for a specific part of the workflow, and Kafka is used for asynchronous communication between them.
 
 ✅ Main Features
