@@ -6,9 +6,11 @@ package com.ansarbachir.application.controllers;
 
  import com.ansarbachir.application.Services.PostService;
 import com.ansarbachir.application.dto.PostDTO;
+import com.ansarbachir.application.dto.PostsPageResponse;
 import com.ansarbachir.application.exceptionHandller.CustomizedException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,30 +34,30 @@ public class PostController {
   
     
     @GetMapping("/user/myposts")
-    public ResponseEntity<Object> getMyPosts(@RequestHeader(name="X_User_Id", required = true) String userIdString){
+    public ResponseEntity<PostsPageResponse> getMyPosts(@RequestHeader(name="X_User_Id", required = true) String userIdString, Pageable pageable){
         if(userIdString == null || "".equals(userIdString)){
-        return  ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new CustomizedException("Unauthorized operation"));
+        return  ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-       List<PostDTO> myPosts = postService.getMyPosts(Long.parseLong(userIdString));
+       PostsPageResponse myPosts = postService.getMyPosts(Long.parseLong(userIdString), pageable);
         return  ResponseEntity.status(HttpStatus.OK).body(myPosts);
     }
    
     @GetMapping("/user/feed")
-    public ResponseEntity<Object> getPosts(@RequestHeader(name="X_User_Id", required = true) String userIdString){
+    public ResponseEntity<PostsPageResponse> getPosts(@RequestHeader(name="X_User_Id", required = true) String userIdString, Pageable pageable){
         if(userIdString == null || "".equals(userIdString)){
-        return  ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new CustomizedException("Unauthorized operation"));
+        return  ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        List<PostDTO>  posts = postService.getPosts(Long.parseLong(userIdString));
+        PostsPageResponse  posts = postService.getPosts(Long.parseLong(userIdString), pageable);
         return  ResponseEntity.status(HttpStatus.OK).body(posts);
     }
      
     
     @GetMapping("/admin/unserapproval")
-    public ResponseEntity<Object> getUnderApprovalPosts(@RequestHeader(name="X_User_Id", required = true) String userIdString){
+    public ResponseEntity<PostsPageResponse> getUnderApprovalPosts(@RequestHeader(name="X_User_Id", required = true) String userIdString,Pageable pageable){
         if(userIdString == null || "".equals(userIdString)){
-        return  ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new CustomizedException("Unauthorized operation"));
+        return  ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        List<PostDTO>  posts = postService.getUnderApprovalPosts();
+        PostsPageResponse  posts = postService.getUnderApprovalPosts(pageable);
         return  ResponseEntity.status(HttpStatus.OK).body(posts);
     }
      

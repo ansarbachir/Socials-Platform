@@ -4,9 +4,8 @@
  */
 package com.ansarbachir.application.Entities;
 import com.ansarbachir.application.enums.PostStatusEnum;
-import jakarta.persistence.CollectionTable;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -16,10 +15,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -52,14 +53,12 @@ public class Post implements Serializable {
     private User user;
     
     
-    @Column(name="title", nullable = false)
-    @Size(max = 250)
-    private String title;
+    @Column(name="content", nullable = false)
+    @Size(max = 1000)
+    private String content;
 
-    @ElementCollection
-    @CollectionTable(name = "post_media", joinColumns = @JoinColumn(name = "post_id"))
-    @Column(name = "media_url", length = 500)
-    private List<String> mediaUrls;
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostMedia> mediaList = new ArrayList<>(); 
     
     @Column(name ="status",nullable = true)
     @Enumerated(EnumType.STRING)

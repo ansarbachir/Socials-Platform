@@ -4,29 +4,23 @@
  */
 package com.ansarbachir.application.dto;
 
- import java.time.LocalDateTime;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
- 
+import lombok.Getter;
+
 /**
  *
  * @author ansar
  */
+
 @Getter
-@Setter
+@Setter 
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PostDTO {
-
-    private long postId;
-    private String content;
-    private List<PostMediaResponse> mediaList;
-    private String username;
-    private LocalDateTime created_at;
-
+public class PostMediaResponse {
+    private Long id;
+    private String mediaData;
 }

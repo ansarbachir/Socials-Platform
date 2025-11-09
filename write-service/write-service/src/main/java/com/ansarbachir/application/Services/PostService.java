@@ -12,8 +12,8 @@ import com.ansarbachir.application.Repositories.LogRepository;
 import com.ansarbachir.application.Repositories.PostRepository;
 import com.ansarbachir.application.Repositories.UserRepository;
 import com.ansarbachir.application.dto.PostApprouve;
-import com.ansarbachir.application.dto.PostCreate;
-import com.ansarbachir.application.dto.PostUpdate;
+import com.ansarbachir.application.dto.PostCreateConsumer;
+ import com.ansarbachir.application.dto.PostUpdate;
 import com.ansarbachir.application.enums.PostStatusEnum;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
@@ -34,19 +34,29 @@ public class PostService {
     
     
     @Transactional
-    public void save(PostCreate req) {
+    public void save(PostCreateConsumer req) {
 
+        if(req.isPostNull()) return;
+        
         User user = userRepository.findById(req.getUserID())
             .orElseThrow(() -> new RuntimeException("User Not Found"));
-
+        
         Post post = new Post();
-        post.setTitle(req.getContent());
+        
+        if(!req.getMediaList().isEmpty()){
+        req.getMediaList().forEach(m -> {m.setPost(post);});
+        }
+        post.setMediaList(req.getMediaList());
+        
+        post.setContent(req.getContent());
         post.setUser(user);                       
-        post.setMediaUrls(req.getUrls());
         post.setStatus(PostStatusEnum.UNDER_APPROVAL);
         post.setCreatedAt(LocalDateTime.now());
-        postRepository.save(post);
+        postRepository.saveAndFlush(post);
 
+        
+        
+        
         Log log = new Log();
         log.setTitle("Create post");
         log.setContent(req.getContent());
@@ -62,8 +72,8 @@ public class PostService {
         Post post = postRepository.findById(req.getIdPost()).orElseThrow(() -> new RuntimeException("Post Not Found"));
         
         
-        post.setTitle(req.getContent());
-        post.setMediaUrls(req.getUrls());
+        post.setContent(req.getContent());
+        //post.setMediaUrls(req.getUrls());
         //post.setModifiedAt(LocalDateTime.now()); //   i need to add this  field
         post.setStatus(PostStatusEnum.UNDER_APPROVAL);
         postRepository.save(post);

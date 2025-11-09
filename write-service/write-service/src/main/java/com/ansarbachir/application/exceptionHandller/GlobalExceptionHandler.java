@@ -21,6 +21,8 @@ public class GlobalExceptionHandler {
 
     
     
+   
+    
     @ExceptionHandler(org.springframework.kafka.listener.ListenerExecutionFailedException.class)
     public ResponseEntity<Map<String, Object>> handleListenerExecutionFailedException(org.springframework.kafka.listener.ListenerExecutionFailedException ex, WebRequest request) {
         Map<String, Object> errorDetails = new HashMap<>();
@@ -72,12 +74,17 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleGlobalException(Exception ex, WebRequest request) {
         return new ResponseEntity<>("An unexpected error occurred: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
-     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
-    public ResponseEntity<String> handleUnsupportedMediaType(HttpMediaTypeNotSupportedException ex) {
+ 
+
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<String> handleHttpMediaTypeNotSupportedException(
+            HttpMediaTypeNotSupportedException ex, WebRequest request) {
+
+        String message = "Content type not supported: " + ex.getContentType();
         return ResponseEntity
                 .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
-                .body("Unsupported media type. Please use JSON or XML.");
+                .body(message);
     }
-    
-  
+
+
 }

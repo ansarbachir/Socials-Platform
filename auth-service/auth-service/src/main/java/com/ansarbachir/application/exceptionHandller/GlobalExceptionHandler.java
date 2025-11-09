@@ -22,6 +22,13 @@ public class GlobalExceptionHandler {
     
     
     
+    @ExceptionHandler(org.springframework.dao.InvalidDataAccessResourceUsageException.class)
+    public ResponseEntity<String> handleInvalidDataAccessResourceUsageException(org.springframework.dao.InvalidDataAccessResourceUsageException ex, WebRequest request) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Error occurred. Please try again.");
+    }
+    
     @ExceptionHandler(CustomizedException.class)
     public ResponseEntity<Map<String, Object>> handleCustomizedException(CustomizedException ex, WebRequest request) {
         Map<String, Object> errorDetails = new HashMap<>();

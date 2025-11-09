@@ -4,29 +4,28 @@
  */
 package com.ansarbachir.application.dto;
 
- import java.time.LocalDateTime;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
- 
+import org.springframework.web.multipart.MultipartFile;
+
 /**
  *
  * @author ansar
  */
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class PostDTO {
-
-    private long postId;
-    private String content;
-    private List<PostMediaResponse> mediaList;
-    private String username;
-    private LocalDateTime created_at;
-
+public class PostCreateRequest{
+private String content;
+private List<MultipartFile> files;
+ 
+public boolean isPostNull(){
+    return this.content == null ||"".equals(content) ;
 }
+}
+

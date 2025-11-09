@@ -31,8 +31,7 @@ CREATE TABLE logs (
 CREATE TABLE posts (
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     user_id BIGINT NOT NULL REFERENCES users(id) ,
-    title VARCHAR(250) NOT NULL,
-    media_url VARCHAR(500),
+    content VARCHAR(1000) NOT NULL,
     status VARCHAR(100),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_post_user FOREIGN KEY (user_id)
@@ -40,9 +39,15 @@ CREATE TABLE posts (
 );
 
 CREATE TABLE post_media (
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    media_url VARCHAR(500) NOT NULL,  
     post_id BIGINT NOT NULL,
-    media_url VARCHAR(500)
+    CONSTRAINT fk_post_media_post
+        FOREIGN KEY (post_id)
+        REFERENCES posts(id)
+        ON DELETE CASCADE
 );
+ 
 
 CREATE TABLE comments (
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,

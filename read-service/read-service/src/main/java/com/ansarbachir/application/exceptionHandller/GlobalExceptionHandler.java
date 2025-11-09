@@ -71,6 +71,28 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
                 .body("Unsupported media type. Please use JSON or XML.");
     }
+ 
+    @ExceptionHandler(org.hibernate.HibernateException.class)
+    public ResponseEntity<String> handleHibernateException(org.hibernate.HibernateException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body("Error occurred. Please try again.");
+    }
+   
+    @ExceptionHandler(org.springframework.orm.jpa.JpaSystemException.class)
+    public ResponseEntity<String> handleJPAException(org.springframework.orm.jpa.JpaSystemException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body("Error occurred. Please try again.");
+    }
+    
+   
+    @ExceptionHandler(org.springframework.dao.InvalidDataAccessResourceUsageException.class)
+    public ResponseEntity<String> handleInvalidDataAccessResourceUsageExceptionn(org.springframework.dao.InvalidDataAccessResourceUsageException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body("Error occurred. Please try again.");
+    }
     
   
 }

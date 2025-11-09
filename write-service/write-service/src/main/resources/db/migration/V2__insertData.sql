@@ -1,8 +1,8 @@
 INSERT INTO roles (name) VALUES ('ROLE_USER');
 INSERT INTO roles (name) VALUES ('ROLE_ADMIN');
 
-INSERT INTO users (username,email, password) VALUES ('ansarbachir','ansar.bachir.94@gmail.com', 'password1')  RETURNING id;
-INSERT INTO users (username,email, password) VALUES ('ansaranes','anes.23@gmail.com', 'password2')  RETURNING id;
+INSERT INTO users (username,email, password) VALUES ('ansarbachir','bachir@ansar', 'password1')  RETURNING id;
+INSERT INTO users (username,email, password) VALUES ('ansaranes','anes@ansar', 'password2')  RETURNING id;
  
  
 WITH admin_user AS (

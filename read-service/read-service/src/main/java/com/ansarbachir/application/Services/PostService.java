@@ -9,10 +9,13 @@ import com.ansarbachir.application.Entities.Post;
 import com.ansarbachir.application.Entities.User;
 import com.ansarbachir.application.Repositories.PostRepository;
 import com.ansarbachir.application.Repositories.UserRepository;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import com.ansarbachir.application.dto.PostMediaResponse;
+import com.ansarbachir.application.dto.PostsPageResponse;
+ import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 /**
@@ -26,57 +29,106 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
 
-     
-
-    public List<PostDTO> getMyPosts(long userId) {
+    public PostsPageResponse getMyPosts(long userId, Pageable pageable) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User Not Found"));
-        Optional<List<Post>> list = postRepository.findApprovedPostsByUserId(user.getId());
-        List<PostDTO> results = new ArrayList<>();
-        if (!list.isEmpty()) {
-            list.get().stream().forEach(
-                    post -> {
-                        results.add(PostDTO.builder()
-                                .content(post.getTitle())
-                                .postId(post.getId())
-                                .username(post.getUser().getUsername())
-                                .build());
-                    });
+        Page<Post> page = postRepository.findApprovedPostsByUserId(user.getId(), pageable);
+        if (!page.isEmpty()) {
+            List<PostDTO> list = page.getContent()
+                    .stream()
+                    .map(post -> PostDTO.builder()
+                    .created_at(post.getCreatedAt())
+                    .content(post.getContent())
+                    .postId(post.getId())
+                    .mediaList(post.getMediaList().stream()
+                            .map(media -> {
+                                PostMediaResponse mr = new PostMediaResponse();
+                                mr.setId(media.getId());
+                                mr.setMediaData(media.getMediaUrl()); 
+                                return mr;
+                            })
+                            .collect(Collectors.toList()) 
+                    )
+                    .username(post.getUser().getUsername())
+                    .build()
+                    )
+                    .toList();
+
+            return new PostsPageResponse(
+                    list,
+                    page.getNumber(),
+                    page.getTotalPages(),
+                    page.getTotalElements()
+            );
         }
-        return results;
+        return new PostsPageResponse(null, 0, 0, 0);
     }
 
-    public List<PostDTO> getPosts(long userId) {
+    public PostsPageResponse getPosts(long userId, Pageable pageable) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User Not Found"));
-        Optional<List<Post>> list = postRepository.findApprovedPostsExcludingUser(user.getId());
-        List<PostDTO> results = new ArrayList<>();
-        if (!list.isEmpty()) {
-            list.get().stream().forEach(
-                    post -> {
-                        results.add(PostDTO.builder()
-                                .content(post.getTitle())
-                                .postId(post.getId())
-                                .username(post.getUser().getUsername())
-                                .build());
-                    });
-        }
-        return results;
+        Page<Post> page = postRepository.findApprovedPostsExcludingUser(user.getId(), pageable);
+        if (!page.isEmpty()) {
+            List<PostDTO> list = page.getContent()
+                    .stream()
+                    .map(post -> PostDTO.builder()
+                    .created_at(post.getCreatedAt())
+                    .content(post.getContent())
+                    .postId(post.getId())
+                    .mediaList(post.getMediaList().stream()
+                            .map(media -> {
+                                PostMediaResponse mr = new PostMediaResponse();
+                                mr.setId(media.getId());
+                                mr.setMediaData(media.getMediaUrl()); 
+                                return mr;
+                            })
+                            .collect(Collectors.toList()) 
+                    )
+                    .username(post.getUser().getUsername())
+                    .build()
+                    )
+                    .toList();
 
+            return new PostsPageResponse(
+                    list,
+                    page.getNumber(),
+                    page.getTotalPages(),
+                    page.getTotalElements()
+            );
+        }
+        return new PostsPageResponse(null, 0, 0, 0);
     }
 
-    public List<PostDTO> getUnderApprovalPosts() {
-        Optional<List<Post>> list = postRepository.findAllUnderApprovalPosts();
-        List<PostDTO> results = new ArrayList<>();
-        if (!list.isEmpty()) {
-            list.get().stream().forEach(
-                    post -> {
-                        results.add(PostDTO.builder()
-                                .content(post.getTitle())
-                                .postId(post.getId())
-                                .username(post.getUser().getUsername())
-                                .build());
-                    });
-        }
-        return results;
-    }
+    public PostsPageResponse getUnderApprovalPosts(Pageable pageable) {
+        Page<Post> page = postRepository.findAllUnderApprovalPosts(pageable);
 
+        if (!page.isEmpty()) {
+
+            List<PostDTO> list = page.getContent()
+                    .stream()
+                    .map(post -> PostDTO.builder()
+                    .created_at(post.getCreatedAt())
+                    .content(post.getContent())
+                    .postId(post.getId())
+                    .mediaList(post.getMediaList().stream()
+                            .map(media -> {
+                                PostMediaResponse mr = new PostMediaResponse();
+                                mr.setId(media.getId());
+                                mr.setMediaData(media.getMediaUrl()); 
+                                return mr;
+                            })
+                            .collect(Collectors.toList()) 
+                    )
+                    .username(post.getUser().getUsername())
+                    .build()
+                    )
+                    .toList();
+
+            return new PostsPageResponse(
+                    list,
+                    page.getNumber(),
+                    page.getTotalPages(),
+                    page.getTotalElements()
+            );
+        }
+        return new PostsPageResponse(null, 0, 0, 0);
+    }
 }
