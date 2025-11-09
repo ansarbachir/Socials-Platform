@@ -36,11 +36,9 @@ public class PostMedia {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "media_url", nullable = false, length = 500)
-    @Size(max = 500) 
+    @Column(name = "media_url", nullable = false, columnDefinition = "TEXT")
     private String mediaUrl;
-
-    
+ 
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)

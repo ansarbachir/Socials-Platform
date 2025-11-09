@@ -40,7 +40,7 @@ CREATE TABLE posts (
 
 CREATE TABLE post_media (
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    media_url VARCHAR(500) NOT NULL,  
+    media_url TEXT NOT NULL,
     post_id BIGINT NOT NULL,
     CONSTRAINT fk_post_media_post
         FOREIGN KEY (post_id)

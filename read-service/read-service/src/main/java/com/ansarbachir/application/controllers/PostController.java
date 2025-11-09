@@ -5,10 +5,7 @@
 package com.ansarbachir.application.controllers;
 
  import com.ansarbachir.application.Services.PostService;
-import com.ansarbachir.application.dto.PostDTO;
 import com.ansarbachir.application.dto.PostsPageResponse;
-import com.ansarbachir.application.exceptionHandller.CustomizedException;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;

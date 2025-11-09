@@ -43,9 +43,15 @@ public class PostService {
         
         Post post = new Post();
         
+        
         if(!req.getMediaList().isEmpty()){
-        req.getMediaList().forEach(m -> {m.setPost(post);});
+            System.out.println("SIZEEEEEEEEEEEE "+req.getMediaList().size());
+            System.out.println("--> "+req.getMediaList().get(0).getMediaUrl());
+            
+            req.getMediaList().forEach(m -> {m.setPost(post);System.out.println(" BBBBBINGO 1 ");});
         }
+        
+        
         post.setMediaList(req.getMediaList());
         
         post.setContent(req.getContent());

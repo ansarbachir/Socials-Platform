@@ -46,7 +46,7 @@ public class PostEventConsumer {
                 try {
                     Files.write(filePath, data.getBytes());
                     PostMedia media  = new PostMedia();
-                    media.setMediaUrl(data);
+                    media.setMediaUrl(filePath.toString());
                     mediaList.add(media); 
                 } catch (IOException ex) {
                     Logger.getLogger(PostEventConsumer.class.getName()).log(Level.SEVERE, null, ex);
@@ -55,6 +55,8 @@ public class PostEventConsumer {
             });
         
         }
+        
+        System.out.println("-----------media list "+mediaList.size());
         
         postService.save(PostCreateConsumer.builder()
                 .content(post.getContent())

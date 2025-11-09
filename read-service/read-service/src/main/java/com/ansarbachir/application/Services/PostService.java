@@ -32,7 +32,11 @@ public class PostService {
     public PostsPageResponse getMyPosts(long userId, Pageable pageable) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User Not Found"));
         Page<Post> page = postRepository.findApprovedPostsByUserId(user.getId(), pageable);
+        
         if (!page.isEmpty()) {
+            
+           
+            
             List<PostDTO> list = page.getContent()
                     .stream()
                     .map(post -> PostDTO.builder()
@@ -102,6 +106,14 @@ public class PostService {
 
         if (!page.isEmpty()) {
 
+             page.getContent()
+                    .stream()
+                    .forEach(p -> {
+                    System.out.println("- "+p.toString() );
+                    System.out.println("----------------------------------------");
+                    System.out.println("* "+p.getMediaList().size());
+                    });
+            
             List<PostDTO> list = page.getContent()
                     .stream()
                     .map(post -> PostDTO.builder()
